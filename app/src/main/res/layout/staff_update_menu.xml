@@ -1,0 +1,195 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="wrap_content"
+    android:layout_height="wrap_content"
+    xmlns:app="http://schemas.android.com/apk/res-auto">
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="10sp"
+        android:layout_marginEnd="10sp"
+        android:background="@drawable/card_bg_withborder"
+        android:orientation="vertical">
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:gravity="center_vertical"
+            android:layout_marginStart="10sp"
+            android:orientation="horizontal">
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Below Menu is Selected "
+                android:layout_weight="1"
+                android:textColor="@color/black"/>
+            <ImageView
+                android:id="@+id/cancel_dialogue"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:src="@drawable/cancel_icon"
+                android:layout_gravity="end"/>
+        </LinearLayout>
+
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="100sp"
+            android:orientation="horizontal"
+            android:gravity="center_vertical"
+            >
+            <LinearLayout
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="10sp"
+                >
+                <androidx.cardview.widget.CardView
+                    android:layout_width="120sp"
+                    android:layout_height="90sp"
+                    app:cardCornerRadius="20sp"
+                    android:layout_gravity="center_horizontal"
+                    android:background="@color/white"
+                    >
+                    <ImageView
+                        android:id="@+id/fc_foodImage"
+                        android:layout_width="120sp"
+                        android:layout_height="90sp"
+                        android:background="@color/white"
+                        android:layout_gravity="center"
+                        android:src="@drawable/trial"
+                        android:scaleType="fitXY"/>
+                </androidx.cardview.widget.CardView>
+            </LinearLayout>
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="10sp"
+                android:gravity="start"
+                android:orientation="vertical">
+                <TextView
+                    android:id="@+id/fc_foodName"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:text="wali makange nyama "
+                    android:textColor="@color/black"
+                    android:textStyle="bold"
+                    android:textSize="17sp"/>
+
+                <TextView
+                    android:id="@+id/fc_foodPrice"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:text="2500.0 TZS"
+                    android:textColor="@color/orange"
+                    android:textStyle="bold|italic"/>
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="horizontal">
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="Sold plates:    "
+                        android:textColor="@color/black"/>
+
+                    <TextView
+                        android:id="@+id/fc_soldAmount"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="250"
+                        android:textColor="@color/orange"
+                        android:textStyle="bold|italic"
+                        android:gravity="center"/>
+
+                </LinearLayout>
+                <LinearLayout
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:orientation="horizontal">
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="Status:     "
+                        android:textColor="@color/black"/>
+                    <TextView
+                        android:id="@+id/fc_foodStatus"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_marginEnd="22sp"
+                        android:layout_weight="1"
+                        android:text="Available"
+                        android:textColor="#00FF00"
+                        android:textStyle="bold|normal"
+                        android:gravity="end"/>
+                </LinearLayout>
+            </LinearLayout>
+
+
+        </LinearLayout>
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Actions:-"
+            android:layout_marginStart="10sp"
+            android:textColor="@color/black"/>
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="10sp"
+            android:orientation="horizontal">
+            <RadioGroup
+                android:id="@+id/modeRadioGroup"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="10sp"
+                android:orientation="horizontal">
+
+                <!-- RadioButton for Available -->
+                <RadioButton
+                    android:id="@+id/availableRadioButton"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:layout_marginTop="10sp"
+                android:drawablePadding="5dp"
+                android:text="Available"
+                android:textColor="@color/black"/>
+
+                <!-- RadioButton for Finished -->
+                <RadioButton
+                    android:id="@+id/finishedRadioButton"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:layout_marginTop="10sp"
+                android:drawablePadding="5dp"
+                android:text="Finished"
+                android:textColor="@color/black"/>
+            </RadioGroup>
+
+        </LinearLayout>
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:textAlignment="center"
+            android:layout_marginBottom="20sp"
+            android:text="CHANGES WILL TAKE EFFECT IMMEDIATELY AFTER CONFIRMING BY CLICKING BELOW BUTTON"
+            android:textColor="@color/black"/>
+        <androidx.appcompat.widget.AppCompatButton
+            android:id="@+id/btn_staffUpdateMenu"
+            android:layout_width="170sp"
+            android:layout_height="50sp"
+            android:layout_gravity="center_horizontal"
+            android:paddingLeft="20sp"
+            android:paddingRight="20sp"
+            android:layout_marginTop="0sp"
+            android:layout_marginBottom="20sp"
+            android:background="@drawable/login"
+            android:text="Update Menu"
+            android:textAllCaps="false"
+            android:textColor="@color/white"
+            android:textStyle="bold"
+            android:textSize="20sp"/>
+    </LinearLayout>
+
+</RelativeLayout>
