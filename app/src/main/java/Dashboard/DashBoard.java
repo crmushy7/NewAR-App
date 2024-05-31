@@ -3,8 +3,10 @@ package Dashboard;
 import android.app.PendingIntent;
 import android.app.ProgressDialog;
 import android.content.Context;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.IntentFilter;
+import android.content.SharedPreferences;
 import android.graphics.Bitmap;
 import android.graphics.Color;
 import android.graphics.drawable.ColorDrawable;
@@ -40,6 +42,7 @@ import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.bumptech.glide.Glide;
+import com.google.android.gms.tasks.OnSuccessListener;
 import com.xperiencelabs.armenu.R;
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.Task;
@@ -83,7 +86,7 @@ public class DashBoard extends AppCompatActivity {
     Button next,registerCustomer;
     Spinner gender;
     private Uri imageUri;
-    public static String userGender="";
+    public static String tableStatus;
     public static String staffStatusMenuUpdate="";
     public static String NFCData="";
     public static String login_staff="Incorrect information";
@@ -103,7 +106,7 @@ public class DashBoard extends AppCompatActivity {
     public static RecyclerView recyclerView;
     public static RecyclerView recyclerViewStaff;
     Thread thread;
-    public static AlertDialog dialog;
+    public static AlertDialog dialog,tabledialog;
     TextView meal_clock,meal_status,backCustReg;
 
     public static String timeStatus="BreakFast";
@@ -135,7 +138,7 @@ public class DashBoard extends AppCompatActivity {
     public static FoodSetGet foodSetGetMod=new FoodSetGet("","","","","");
     LinearLayout dashBoardlayout,settingsLayout,feedbackLayout,dashbordinsideLayout,profileLayout,myhistoryLayout,customerReg1,customerReg2;
     public static LinearLayout navigationLayout;
-    TextView menu_textv,scan_textv,customer_textv,dob;
+    TextView menu_textv,scan_textv,customer_textv,dob,tableNumber;
     ProgressBar progressBar;
     public static String accountNumber="";
     public static String accountUserID="";
@@ -149,6 +152,15 @@ public class DashBoard extends AppCompatActivity {
         setContentView(R.layout.activity_dash_board);
         OurTime.init(getApplicationContext());
         progressBar=findViewById(R.id.progress_dashboard);
+
+        tableNumber=findViewById(R.id.table_number);
+        SharedPreferences sharedPreferences=getSharedPreferences("table_status",MODE_PRIVATE);
+        tableStatus=sharedPreferences.getString("table_number",null);
+        if (tableStatus==null){
+
+        }else{
+            tableNumber.setText(tableStatus);
+        }
 
 
         Calendar calendar = Calendar.getInstance();
@@ -242,7 +254,7 @@ public class DashBoard extends AppCompatActivity {
        switchMode.setOnClickListener(new View.OnClickListener() {
            @Override
            public void onClick(View v) {
-               changeUserMode(DashBoard.this);
+               changeUserMode(DashBoard.this,"normal");
            }
        });
 
@@ -660,6 +672,7 @@ public class DashBoard extends AppCompatActivity {
             @Override
             public void onItemClick(int position, FoodSetGet foodSetGet) {
                 String text=foodSetGet.getMenuAvailability()+"";
+
                 if (text.equals("Available")){
                     alertdialogBuilder(foodSetGet);
                 }else{
@@ -994,6 +1007,7 @@ public class DashBoard extends AppCompatActivity {
         LinearLayout error=popupView.findViewById(R.id.ad_error_layout);
         LinearLayout success=popupView.findViewById(R.id.ad_success_layout);
         Button confirmbtn=popupView.findViewById(R.id.ad_confirm_button);
+        Button placeOrder=popupView.findViewById(R.id.place_order_btn);
         Button depositbtn=popupView.findViewById(R.id.ad_deposit_button);
         Button viewCouponbtn=popupView.findViewById(R.id.ad_viewCoupon_button);
         ImageView foodImage=popupView.findViewById(R.id.fc_foodImage);
@@ -1002,7 +1016,41 @@ public class DashBoard extends AppCompatActivity {
         TextView dismissbutton=popupView.findViewById(R.id.ad_dismissbtn);
         TextView alertmessage=popupView.findViewById(R.id.fc_alertMessage);
 
-        alertmessage.setText(foodSetGet.getFoodPrice()+" will be deducted from your account");
+        placeOrder.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+
+                if (tableStatus==null){
+                    AlertDialog.Builder builder_table=new AlertDialog.Builder(DashBoard.this);
+                    View popupView = LayoutInflater.from(DashBoard.this).inflate(R.layout.table_alert, null);
+                    builder_table.setView(popupView);
+                    tabledialog = builder_table.create();
+                    tabledialog.setCancelable(true);
+                    Button assign=popupView.findViewById(R.id.btn_staffLogin);
+                    assign.setOnClickListener(new View.OnClickListener() {
+                        @Override
+                        public void onClick(View v) {
+                            dialog.dismiss();
+                            changeUserMode(DashBoard.this,"Assign");
+                            tabledialog.dismiss();
+
+                        }
+                    });
+                    builder_table.setOnCancelListener(new DialogInterface.OnCancelListener() {
+                        @Override
+                        public void onCancel(DialogInterface dialog) {
+                            Toast.makeText(DashBoard.this, "Can't place order without setting table number!", Toast.LENGTH_LONG).show();
+                        }
+                    });
+                    tabledialog.show();
+                }else {
+                    placeorder(foodSetGet);
+                    dialog.dismiss();
+                }
+            }
+        });
+
+        alertmessage.setText(foodSetGet.getFoodPrice()+" will be required for this menu.");
 
         Glide.with(DashBoard.this)
                 .load(foodSetGet.getItemImage())
@@ -1086,12 +1134,45 @@ public class DashBoard extends AppCompatActivity {
         thread.interrupt();
     }
 
+    private void placeorder(FoodSetGet foodSetGet){
+        progressDialog2.show();
+        Calendar calendar = Calendar.getInstance();
+        String currentdate = DateFormat.getInstance().format(calendar.getTime());
+        String[] dateSeparation=currentdate.split(" ");
+        String dateOnlyFull=dateSeparation[0]+"";
+        String[] tarehe=dateOnlyFull.split("/");
+        int day = calendar.get(Calendar.DAY_OF_MONTH);
+        int month = calendar.get(Calendar.MONTH) + 1; // Adding 1 because January is represented as 0
+        int year = calendar.get(Calendar.YEAR);
+        String dateOnly=day+"-"+month+"-"+year;
+        DatabaseReference placeord=FirebaseDatabase.getInstance().getReference().child("Tables")
+                .child(dateOnly)
+                .child(tableStatus).push();
+        placeord.addListenerForSingleValueEvent(new ValueEventListener() {
+            @Override
+            public void onDataChange(@NonNull DataSnapshot snapshot) {
+                placeord.child("FoodName").setValue(foodSetGet.getFoodName());
+                placeord.child("FoodPrice").setValue(foodSetGet.getFoodPrice());
+                placeord.child("Status").setValue("Not served");
+                placeord.child("orderID").setValue(snapshot.getKey().trim());
+                placeord.child("tableNumber").setValue(tableStatus).addOnSuccessListener(new OnSuccessListener<Void>() {
+                    @Override
+                    public void onSuccess(Void unused) {
+                        progressDialog2.dismiss();
+                        Toast.makeText(DashBoard.this, "Order placed! please wait a few minutes and it will be served to you!", Toast.LENGTH_LONG).show();
+                        dialog.dismiss();
+                    }
+                });
+            }
 
+            @Override
+            public void onCancelled(@NonNull DatabaseError error) {
 
+            }
+        });
 
-
-
-    public void changeUserMode(Context context){
+    }
+    public void changeUserMode(Context context,String tableassign){
         AlertDialog.Builder builder=new AlertDialog.Builder(context);
         LayoutInflater inflater=LayoutInflater.from(context);
         View view=inflater.inflate(R.layout.mode_control,null);
@@ -1106,6 +1187,7 @@ public class DashBoard extends AppCompatActivity {
 
         LinearLayout staffmode=view.findViewById(R.id.staffMode);
         LinearLayout changepass=view.findViewById(R.id.changePassword);
+        LinearLayout changetablenumber=view.findViewById(R.id.updatetablenumber);
         ImageView stafficon=view.findViewById(R.id.staffDot);
         TextView stafft=view.findViewById(R.id.staffText);
         if (modeController.equals("normal")){
@@ -1117,6 +1199,7 @@ public class DashBoard extends AppCompatActivity {
 //                    .into(stafficon);
             stafft.setText("Switch to staff mode");
             changepass.setVisibility(View.GONE);
+            changetablenumber.setVisibility(View.GONE);
             dialog1.show();
         }else{
 //            Glide.with(context)
@@ -1127,6 +1210,46 @@ public class DashBoard extends AppCompatActivity {
 //                    .into(normalicon);
             stafft.setText("Switch to normal mode");
             changepass.setVisibility(View.VISIBLE);
+            changetablenumber.setVisibility(View.VISIBLE);
+            changetablenumber.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    dialog1.dismiss();
+                    AlertDialog.Builder builderpass=new AlertDialog.Builder(context);
+                    LayoutInflater inflater=LayoutInflater.from(context);
+                    View view=inflater.inflate(R.layout.password_update,null);
+                    builderpass.setView(view);
+                    AlertDialog dialogpass=builderpass.create();
+                    dialogpass.show();
+                    TextView passtv=view.findViewById(R.id.update_passwordtv);
+                    TextView tabletv=view.findViewById(R.id.update_tabletv);
+                    EditText passet=view.findViewById(R.id.update_passwordet);
+                    EditText tableset=view.findViewById(R.id.update_tableet);
+                    passtv.setVisibility(View.GONE);
+                    passet.setVisibility(View.GONE);
+                    tabletv.setVisibility(View.VISIBLE);
+                    tableset.setVisibility(View.VISIBLE);
+                    Button upd=view.findViewById(R.id.password_updateButton);
+                    upd.setOnClickListener(new View.OnClickListener() {
+                        @Override
+                        public void onClick(View v) {
+                            String newtablenumber=tableset.getText().toString().trim();
+                            if (newtablenumber.isEmpty()){
+                                tableset.setError("Required");
+                                tableset.requestFocus();
+                            } else{
+                                SharedPreferences sharedPreferences=getSharedPreferences("table_status",MODE_PRIVATE);
+                                SharedPreferences.Editor editor=sharedPreferences.edit();
+                                editor.putString("table_number","TABLE "+newtablenumber);
+                                editor.apply();
+                                tableNumber.setText("TABLE "+newtablenumber);
+                                tableStatus="TABLE "+newtablenumber;
+                                dialogpass.dismiss();
+                            }
+                        }
+                    });
+                }
+            });
             changepass.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {
@@ -1137,7 +1260,14 @@ public class DashBoard extends AppCompatActivity {
                     builderpass.setView(view);
                     AlertDialog dialogpass=builderpass.create();
                     dialogpass.show();
+                    TextView passtv=view.findViewById(R.id.update_passwordtv);
+                    TextView tabletv=view.findViewById(R.id.update_tabletv);
                     EditText passet=view.findViewById(R.id.update_passwordet);
+                    EditText tableset=view.findViewById(R.id.update_tableet);
+                    passtv.setVisibility(View.VISIBLE);
+                    passet.setVisibility(View.VISIBLE);
+                    tabletv.setVisibility(View.GONE);
+                    tableset.setVisibility(View.GONE);
                     Button upd=view.findViewById(R.id.password_updateButton);
                     upd.setOnClickListener(new View.OnClickListener() {
                         @Override
