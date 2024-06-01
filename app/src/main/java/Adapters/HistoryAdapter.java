@@ -78,6 +78,7 @@ public class HistoryAdapter extends RecyclerView.Adapter<HistoryAdapter.ViewHold
         private TextView coupon_status;
         private TextView coupon_date;
         private TextView coupon_refNo;
+        private TextView table;
 
         public ViewHolder(@NonNull View itemView) {
             super(itemView);
@@ -85,6 +86,7 @@ public class HistoryAdapter extends RecyclerView.Adapter<HistoryAdapter.ViewHold
             food_price = itemView.findViewById(R.id.hc_foodprice);
             coupon_status = itemView.findViewById(R.id.hc_couponStatus);
             coupon_date=itemView.findViewById(R.id.hc_couponDate);
+            table=itemView.findViewById(R.id.hc_coupontable);
             coupon_refNo=itemView.findViewById(R.id.hc_referenceNumber);
         }
 
@@ -94,6 +96,7 @@ public class HistoryAdapter extends RecyclerView.Adapter<HistoryAdapter.ViewHold
             coupon_status.setText(historySetGet.getCoupon_status());
             coupon_refNo.setText(historySetGet.getCoupon_reference_Number());
             coupon_date.setText(historySetGet.getCoupon_date());
+            table.setText(historySetGet.getCoupon_serveTime());
         }
     }
 

@@ -384,7 +384,7 @@ public class DashBoard extends AppCompatActivity {
                         String menudate=dataSnapshot.child("Date").getValue(String.class);
                         String orderid=dataSnapshot.child("orderID").getValue(String.class);
                         String tablenum=dataSnapshot.child("tableNumber").getValue(String.class);
-                        HistorySetGet historySetGet=new HistorySetGet(foodname+"",foodprice+"",orderid+"",menudate+"",menustatus+"","");
+                        HistorySetGet historySetGet=new HistorySetGet(foodname+"",foodprice+"",orderid+"",menudate+"",menustatus+"",tablenum+"");
                         foodListorder.add(historySetGet);
                     }
                     historyAdapter.updateData(foodListorder);
@@ -1210,7 +1210,7 @@ public class DashBoard extends AppCompatActivity {
                 placeord.child("Status").setValue("Not served");
                 placeord.child("Date").setValue(currentdate+" Hrs");
                 placeord.child("orderID").setValue(snapshot.getKey().trim());
-                placeord.child("tableNumber").setValue(tableStatus).addOnSuccessListener(new OnSuccessListener<Void>() {
+                placeord.child("tableNumber").setValue(tableNumber.getText().toString().trim()).addOnSuccessListener(new OnSuccessListener<Void>() {
                     @Override
                     public void onSuccess(Void unused) {
 
@@ -1224,7 +1224,7 @@ public class DashBoard extends AppCompatActivity {
                                 hist.child("Status").setValue("Not served");
                                 hist.child("Date").setValue(currentdate+" Hrs");
                                 hist.child("orderID").setValue(snapshot.getKey().trim());
-                                hist.child("tableNumber").setValue(tableStatus).addOnSuccessListener(new OnSuccessListener<Void>() {
+                                hist.child("tableNumber").setValue(tableNumber.getText().toString().trim()).addOnSuccessListener(new OnSuccessListener<Void>() {
                                     @Override
                                     public void onSuccess(Void unused) {
                                         progressDialog2.dismiss();
@@ -1320,7 +1320,7 @@ public class DashBoard extends AppCompatActivity {
                                 SharedPreferences.Editor editor=sharedPreferences.edit();
                                 editor.putString("table_number","TABLE "+newtablenumber);
                                 editor.apply();
-                                tableNumber.setText("TABLE "+newtablenumber);
+//                                tableNumber.setText("TABLE "+newtablenumber);
                                 tableStatus="TABLE "+newtablenumber;
                                 dialogpass.dismiss();
                             }
