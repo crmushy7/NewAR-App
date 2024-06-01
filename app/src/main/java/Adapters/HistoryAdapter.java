@@ -1,5 +1,6 @@
 package Adapters;
 
+import android.content.Context;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -17,7 +18,7 @@ public class HistoryAdapter extends RecyclerView.Adapter<HistoryAdapter.ViewHold
     private OnItemClickListener mListener;
     private boolean clickable = true;
 
-    public HistoryAdapter(List<HistorySetGet> coupons) {
+    public HistoryAdapter(Context context,List<HistorySetGet> coupons) {
         this.coupons = coupons;
     }
     public void setOnItemClickListener(OnItemClickListener listener) {

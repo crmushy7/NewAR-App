@@ -71,6 +71,7 @@ import Adapters.FoodAdapterStaff;
 import Adapters.FoodSetGet;
 import Adapters.FoodSetGetStaff;
 import Adapters.HistoryAdapter;
+import Adapters.HistorySetGet;
 import Others.OurTime;
 
 public class DashBoard extends AppCompatActivity {
@@ -100,10 +101,12 @@ public class DashBoard extends AppCompatActivity {
     Pattern pat = Pattern.compile(emailRegex);
 
     private List<FoodSetGet>foodList=new ArrayList<>();
+    private List<HistorySetGet>foodListorder=new ArrayList<>();
     private List<FoodSetGetStaff>foodListStaff=new ArrayList<>();
-    public static HistoryAdapter historyAdapter;
+     HistoryAdapter historyAdapter;
     public static RecyclerView myHistoryRecyclerView;
     public static RecyclerView recyclerView;
+    public static RecyclerView recyclerViewOrders;
     public static RecyclerView recyclerViewStaff;
     Thread thread;
     public static AlertDialog dialog,tabledialog;
@@ -235,6 +238,11 @@ public class DashBoard extends AppCompatActivity {
         adapterStaff=new FoodAdapterStaff(getApplicationContext(),new ArrayList<>());
         recyclerViewStaff.setAdapter(adapterStaff);
 
+        recyclerViewOrders=(RecyclerView) findViewById(R.id.recyclervieworders);
+        recyclerViewOrders.setLayoutManager(new LinearLayoutManager(DashBoard.this));
+        historyAdapter=new HistoryAdapter(getApplicationContext(),new ArrayList<>());
+        recyclerViewOrders.setAdapter(historyAdapter);
+
         navigationLayout = (LinearLayout) findViewById(R.id.navigationLayout);
         String intentReceived=getIntent().getStringExtra("stat")+"";
         if (intentReceived.equals("cancel")){
@@ -313,6 +321,7 @@ public class DashBoard extends AppCompatActivity {
                 myhistoryLayout.setVisibility(View.GONE);
                 customerReg1.setVisibility(View.VISIBLE);
                 customerReg2.setVisibility(View.GONE);
+                recyclerViewOrders.setVisibility(View.GONE);
                 ImageView topProfile=findViewById(R.id.sa_topProfilePic);
                 ImageView cardProfile=findViewById(R.id.sa_cardProfilePic);
                 TextView name=findViewById(R.id.sa_user_Fullname);
@@ -330,29 +339,71 @@ public class DashBoard extends AppCompatActivity {
             }
         });
 
-//        scan_qrCode.setOnClickListener(new View.OnClickListener() {
-//    @Override
-//    public void onClick(View v) {
-//        Intent intent = new Intent(DashBoard.this, QRScannerActivity.class);
-//        startActivityForResult(intent, REQUEST_CODE_QR_SCAN);
-//
-//        customerReg1.setVisibility(View.GONE);
-//        customerReg2.setVisibility(View.GONE);
-////        scan_textv.setTextColor(getResources().getColor(R.color.black));
-////        customerNav.setBackgroundResource(R.color.white);
-////        menu_textv.setTextColor(getResources().getColor(R.color.black));
-////        homeBtn.setBackgroundResource(R.color.white);
-////        customer_textv.setTextColor(getResources().getColor(R.color.white));
-////        scan_qrCode.setBackgroundResource(R.drawable.time);
-////        dashbordinsideLayout.setVisibility(View.GONE);
-////        settingsLayout.setVisibility(View.GONE);
-////        feedbackLayout.setVisibility(View.VISIBLE);
-////        dashBoardlayout.setVisibility(View.VISIBLE);
-////        profileLayout.setVisibility(View.GONE);
-////        myhistoryLayout.setVisibility(View.GONE);
-////        navigationLayout.setVisibility(View.VISIBLE);
-//    }
-//});
+        scan_qrCode.setOnClickListener(new View.OnClickListener() {
+    @Override
+    public void onClick(View v) {
+
+        Calendar calendar = Calendar.getInstance();
+        String currentdate = DateFormat.getInstance().format(calendar.getTime());
+        String[] dateSeparation=currentdate.split(" ");
+        String dateOnlyFull=dateSeparation[0]+"";
+        String[] tarehe=dateOnlyFull.split("/");
+        int day = calendar.get(Calendar.DAY_OF_MONTH);
+        int month = calendar.get(Calendar.MONTH) + 1; // Adding 1 because January is represented as 0
+        int year = calendar.get(Calendar.YEAR);
+        String dateOnly=day+"-"+month+"-"+year;
+        progressBar.setVisibility(View.VISIBLE);
+        customerReg1.setVisibility(View.GONE);
+        customerReg2.setVisibility(View.GONE);
+        scan_textv.setTextColor(getResources().getColor(R.color.black));
+        customerNav.setBackgroundResource(R.color.white);
+        menu_textv.setTextColor(getResources().getColor(R.color.black));
+        homeBtn.setBackgroundResource(R.color.white);
+        customer_textv.setTextColor(getResources().getColor(R.color.white));
+        scan_qrCode.setBackgroundResource(R.drawable.time);
+        dashbordinsideLayout.setVisibility(View.GONE);
+        settingsLayout.setVisibility(View.GONE);
+        feedbackLayout.setVisibility(View.GONE);
+        dashBoardlayout.setVisibility(View.VISIBLE);
+        profileLayout.setVisibility(View.GONE);
+        recyclerView.setVisibility(View.GONE);
+        myhistoryLayout.setVisibility(View.GONE);
+        navigationLayout.setVisibility(View.VISIBLE);
+        recyclerViewOrders.setVisibility(View.VISIBLE);
+
+        DatabaseReference historyref=FirebaseDatabase.getInstance().getReference().child("History").child(dateOnly);
+        historyref.addValueEventListener(new ValueEventListener() {
+            @Override
+            public void onDataChange(@NonNull DataSnapshot snapshot) {
+                if (snapshot.exists()){
+                    foodListorder.clear();
+                    for (DataSnapshot dataSnapshot : snapshot.getChildren()){
+                        String foodname=dataSnapshot.child("FoodName").getValue(String.class);
+                        String foodprice=dataSnapshot.child("FoodPrice").getValue(String.class);
+                        String menustatus=dataSnapshot.child("Status").getValue(String.class);
+                        String menudate=dataSnapshot.child("Date").getValue(String.class);
+                        String orderid=dataSnapshot.child("orderID").getValue(String.class);
+                        String tablenum=dataSnapshot.child("tableNumber").getValue(String.class);
+                        HistorySetGet historySetGet=new HistorySetGet(foodname+"",foodprice+"",orderid+"",menudate+"",menustatus+"","");
+                        foodListorder.add(historySetGet);
+                    }
+                    historyAdapter.updateData(foodListorder);
+                    historyAdapter.notifyDataSetChanged();
+                    Collections.reverse(foodListorder);
+                    progressBar.setVisibility(View.GONE);
+                }else{
+                    Toast.makeText(DashBoard.this, "no sold menus for today", Toast.LENGTH_SHORT).show();
+                }
+            }
+
+            @Override
+            public void onCancelled(@NonNull DatabaseError error) {
+
+            }
+        });
+
+    }
+});
 
 
         Button validate_coupon=findViewById(R.id.btn_validateCouponpr);
@@ -380,6 +431,8 @@ public class DashBoard extends AppCompatActivity {
         navigationLayout.setVisibility(View.VISIBLE);
         customerReg1.setVisibility(View.GONE);
         customerReg2.setVisibility(View.GONE);
+        recyclerViewStaff.setVisibility(View.VISIBLE);
+        recyclerViewOrders.setVisibility(View.GONE);
 
     }
 });
@@ -1154,13 +1207,37 @@ public class DashBoard extends AppCompatActivity {
                 placeord.child("FoodName").setValue(foodSetGet.getFoodName());
                 placeord.child("FoodPrice").setValue(foodSetGet.getFoodPrice());
                 placeord.child("Status").setValue("Not served");
+                placeord.child("Date").setValue(currentdate+" Hrs");
                 placeord.child("orderID").setValue(snapshot.getKey().trim());
                 placeord.child("tableNumber").setValue(tableStatus).addOnSuccessListener(new OnSuccessListener<Void>() {
                     @Override
                     public void onSuccess(Void unused) {
-                        progressDialog2.dismiss();
-                        Toast.makeText(DashBoard.this, "Order placed! please wait a few minutes and it will be served to you!", Toast.LENGTH_LONG).show();
-                        dialog.dismiss();
+
+                        DatabaseReference hist=FirebaseDatabase.getInstance().getReference().child("History").child(dateOnly)
+                                .child(snapshot.getKey().toString());
+                        hist.addListenerForSingleValueEvent(new ValueEventListener() {
+                            @Override
+                            public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
+                                hist.child("FoodName").setValue(foodSetGet.getFoodName());
+                                hist.child("FoodPrice").setValue(foodSetGet.getFoodPrice());
+                                hist.child("Status").setValue("Not served");
+                                hist.child("Date").setValue(currentdate+" Hrs");
+                                hist.child("orderID").setValue(snapshot.getKey().trim());
+                                hist.child("tableNumber").setValue(tableStatus).addOnSuccessListener(new OnSuccessListener<Void>() {
+                                    @Override
+                                    public void onSuccess(Void unused) {
+                                        progressDialog2.dismiss();
+                                        Toast.makeText(DashBoard.this, "Order placed! please wait a few minutes and it will be served to you!", Toast.LENGTH_LONG).show();
+                                        dialog.dismiss();
+                                    }
+                                });
+                            }
+
+                            @Override
+                            public void onCancelled(@NonNull DatabaseError error) {
+
+                            }
+                        });
                     }
                 });
             }
