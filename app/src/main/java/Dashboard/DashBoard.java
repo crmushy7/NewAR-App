@@ -355,9 +355,9 @@ public class DashBoard extends AppCompatActivity {
         progressBar.setVisibility(View.VISIBLE);
         customerReg1.setVisibility(View.GONE);
         customerReg2.setVisibility(View.GONE);
-        scan_textv.setTextColor(getResources().getColor(R.color.black));
+        scan_textv.setTextColor(getResources().getColor(R.color.white));
         customerNav.setBackgroundResource(R.color.white);
-        menu_textv.setTextColor(getResources().getColor(R.color.black));
+        menu_textv.setTextColor(getResources().getColor(R.color.white));
         homeBtn.setBackgroundResource(R.color.white);
         customer_textv.setTextColor(getResources().getColor(R.color.white));
         scan_qrCode.setBackgroundResource(R.drawable.time);
@@ -422,6 +422,7 @@ public class DashBoard extends AppCompatActivity {
         menu_textv.setTextColor(getResources().getColor(R.color.white));
         homeBtn.setBackgroundResource(R.drawable.time);
         scan_qrCode.setBackgroundResource(R.color.white);
+        scan_textv.setTextColor(getResources().getColor(R.color.white));
         dashBoardlayout.setVisibility(View.VISIBLE);
         settingsLayout.setVisibility(View.GONE);
         feedbackLayout.setVisibility(View.GONE);
@@ -1444,6 +1445,7 @@ public class DashBoard extends AppCompatActivity {
                                                                 recyclerView.setVisibility(View.GONE);
                                                                 recyclerViewStaff.setVisibility(View.VISIBLE);
                                                                 navigationLayout.setVisibility(View.VISIBLE);
+                                                                tableNumber.setText("STAFF USE");
                                                                 dialog2.dismiss();
 
                                                             }else{
@@ -1490,6 +1492,19 @@ public class DashBoard extends AppCompatActivity {
                     dialog2.show();
                 }else{
                     modeController="normal";
+
+                    dashBoardlayout.setVisibility(View.VISIBLE);
+                    settingsLayout.setVisibility(View.GONE);
+                    feedbackLayout.setVisibility(View.GONE);
+                    dashbordinsideLayout.setVisibility(View.VISIBLE);
+                    profileLayout.setVisibility(View.GONE);
+                    myhistoryLayout.setVisibility(View.GONE);
+                    navigationLayout.setVisibility(View.GONE);
+                    customerReg1.setVisibility(View.GONE);
+                    customerReg2.setVisibility(View.GONE);
+                    recyclerViewStaff.setVisibility(View.GONE);
+                    recyclerViewOrders.setVisibility(View.GONE);
+                    tableNumber.setText(tableStatus+"");
                     recyclerView.setVisibility(View.VISIBLE);
                     recyclerViewStaff.setVisibility(View.GONE);
                     navigationLayout.setVisibility(View.GONE);
