@@ -376,7 +376,9 @@ public class DashBoard extends AppCompatActivity {
             @Override
             public void onDataChange(@NonNull DataSnapshot snapshot) {
                 if (snapshot.exists()){
+                    List<HistorySetGet> unfilterdlist = new ArrayList<>();
                     foodListorder.clear();
+                    unfilterdlist.clear();
                     for (DataSnapshot dataSnapshot : snapshot.getChildren()){
                         String foodname=dataSnapshot.child("FoodName").getValue(String.class);
                         String foodprice=dataSnapshot.child("FoodPrice").getValue(String.class);
@@ -387,9 +389,25 @@ public class DashBoard extends AppCompatActivity {
                         HistorySetGet historySetGet=new HistorySetGet(foodname+"",foodprice+"",orderid+"",menudate+"",menustatus+"",tablenum+"");
                         foodListorder.add(historySetGet);
                     }
-                    historyAdapter.updateData(foodListorder);
+                    for (HistorySetGet historySetGet: foodListorder){
+                        if (historySetGet.getCoupon_status().equals("Not served")){
+                            unfilterdlist.add(historySetGet);
+                        }
+                    }
+                    for (HistorySetGet historySetGet: foodListorder){
+                        if (historySetGet.getCoupon_status().equals("served")){
+                            unfilterdlist.add(historySetGet);
+                        }
+                    }
+                    for (HistorySetGet historySetGet: foodListorder){
+                        if (historySetGet.getCoupon_status().equals("canceled")){
+                            unfilterdlist.add(historySetGet);
+                        }
+                    }
+
+                    historyAdapter.updateData(unfilterdlist);
                     historyAdapter.notifyDataSetChanged();
-                    Collections.reverse(foodListorder);
+//                    Collections.reverse(unfilterdlist);
                     progressBar.setVisibility(View.GONE);
                 }else{
                     Toast.makeText(DashBoard.this, "no sold menus for today", Toast.LENGTH_SHORT).show();
@@ -404,6 +422,16 @@ public class DashBoard extends AppCompatActivity {
 
     }
 });
+        historyAdapter.setOnItemClickListener(new HistoryAdapter.OnItemClickListener() {
+            @Override
+            public void onItemClick(int position, HistorySetGet historySetGet) {
+                if (historySetGet.getCoupon_status().equals("Not served")){
+                    alterOrder(historySetGet);
+                }else{
+                    Toast.makeText(DashBoard.this, "Order "+historySetGet.getCoupon_status(), Toast.LENGTH_SHORT).show();
+                }
+            }
+        });
 
 
         Button validate_coupon=findViewById(R.id.btn_validateCouponpr);
@@ -1522,6 +1550,135 @@ public class DashBoard extends AppCompatActivity {
         params.y=200;
         dialog1.getWindow().setAttributes(params);
 
+    }
+    private void alterOrder(HistorySetGet historySetGet){
+        AlertDialog.Builder builder4=new AlertDialog.Builder(DashBoard.this);
+        LayoutInflater inflater=LayoutInflater.from(DashBoard.this);
+        View view=inflater.inflate(R.layout.order,null);
+        builder4.setView(view);
+        AlertDialog dialog4 = builder4.create();
+        dialog4.setCancelable(false);
+        dialog4.show();
+
+        Button cancelorder=view.findViewById(R.id.cancelOrder);
+        Button serveorder=view.findViewById(R.id.serveOrder);
+        ImageView dismiss=view.findViewById(R.id.orderdismiss);
+        TextView texttv=view.findViewById(R.id.toptext);
+        texttv.setText(historySetGet.getFood_name()+" at "+historySetGet.getCoupon_serveTime());
+        dismiss.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                dialog4.dismiss();
+            }
+        });
+        serveorder.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                progressDialog2.show();
+                Calendar calendar = Calendar.getInstance();
+                String currentdate = DateFormat.getInstance().format(calendar.getTime());
+                String[] dateSeparation=currentdate.split(" ");
+                String dateOnlyFull=dateSeparation[0]+"";
+                String[] tarehe=dateOnlyFull.split("/");
+                int day = calendar.get(Calendar.DAY_OF_MONTH);
+                int month = calendar.get(Calendar.MONTH) + 1; // Adding 1 because January is represented as 0
+                int year = calendar.get(Calendar.YEAR);
+                String dateOnly=day+"-"+month+"-"+year;
+                DatabaseReference placeord=FirebaseDatabase.getInstance().getReference().child("Tables")
+                        .child(dateOnly)
+                        .child(historySetGet.getCoupon_serveTime()).child(historySetGet.getCoupon_reference_Number());
+                placeord.addListenerForSingleValueEvent(new ValueEventListener() {
+                    @Override
+                    public void onDataChange(@NonNull DataSnapshot snapshot) {
+                        placeord.child("Status").setValue("served").addOnSuccessListener(new OnSuccessListener<Void>() {
+                            @Override
+                            public void onSuccess(Void unused) {
+
+                                DatabaseReference hist=FirebaseDatabase.getInstance().getReference().child("History").child(dateOnly)
+                                        .child(historySetGet.getCoupon_reference_Number());
+                                hist.addListenerForSingleValueEvent(new ValueEventListener() {
+                                    @Override
+                                    public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
+                                        hist.child("Status").setValue("served").addOnSuccessListener(new OnSuccessListener<Void>() {
+                                            @Override
+                                            public void onSuccess(Void unused) {
+                                                progressDialog2.dismiss();
+                                                Toast.makeText(DashBoard.this, "Success!", Toast.LENGTH_LONG).show();
+                                                dialog4.dismiss();
+                                            }
+                                        });
+                                    }
+
+                                    @Override
+                                    public void onCancelled(@NonNull DatabaseError error) {
+
+                                    }
+                                });
+                            }
+                        });
+                    }
+
+                    @Override
+                    public void onCancelled(@NonNull DatabaseError error) {
+
+                    }
+                });
+            }
+        });
+        cancelorder.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                progressDialog2.show();
+                Calendar calendar = Calendar.getInstance();
+                String currentdate = DateFormat.getInstance().format(calendar.getTime());
+                String[] dateSeparation=currentdate.split(" ");
+                String dateOnlyFull=dateSeparation[0]+"";
+                String[] tarehe=dateOnlyFull.split("/");
+                int day = calendar.get(Calendar.DAY_OF_MONTH);
+                int month = calendar.get(Calendar.MONTH) + 1; // Adding 1 because January is represented as 0
+                int year = calendar.get(Calendar.YEAR);
+                String dateOnly=day+"-"+month+"-"+year;
+                DatabaseReference placeord=FirebaseDatabase.getInstance().getReference().child("Tables")
+                        .child(dateOnly)
+                        .child(historySetGet.getCoupon_serveTime()).child(historySetGet.getCoupon_reference_Number());
+                placeord.addListenerForSingleValueEvent(new ValueEventListener() {
+                    @Override
+                    public void onDataChange(@NonNull DataSnapshot snapshot) {
+                        placeord.child("Status").setValue("canceled").addOnSuccessListener(new OnSuccessListener<Void>() {
+                            @Override
+                            public void onSuccess(Void unused) {
+
+                                DatabaseReference hist=FirebaseDatabase.getInstance().getReference().child("History").child(dateOnly)
+                                        .child(historySetGet.getCoupon_reference_Number());
+                                hist.addListenerForSingleValueEvent(new ValueEventListener() {
+                                    @Override
+                                    public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
+                                        hist.child("Status").setValue("canceled").addOnSuccessListener(new OnSuccessListener<Void>() {
+                                            @Override
+                                            public void onSuccess(Void unused) {
+                                                progressDialog2.dismiss();
+                                                Toast.makeText(DashBoard.this, "Success!", Toast.LENGTH_LONG).show();
+                                                dialog4.dismiss();
+                                            }
+                                        });
+                                    }
+
+                                    @Override
+                                    public void onCancelled(@NonNull DatabaseError error) {
+
+                                    }
+                                });
+                            }
+                        });
+                    }
+
+                    @Override
+                    public void onCancelled(@NonNull DatabaseError error) {
+
+                    }
+                });
+            }
+        });
     }
     public void updateMenu(FoodSetGetStaff foodSetGetStaff){
         AlertDialog.Builder builder3=new AlertDialog.Builder(DashBoard.this);
