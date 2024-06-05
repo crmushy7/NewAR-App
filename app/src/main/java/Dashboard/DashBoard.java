@@ -143,7 +143,7 @@ public class DashBoard extends AppCompatActivity {
     public static LinearLayout navigationLayout;
     TextView menu_textv,scan_textv,customer_textv,dob,tableNumber;
     ProgressBar progressBar;
-    public static String accountNumber="";
+    public static String foodtype="";
     public static String accountUserID="";
     public static String dateOnly="";
     EditText searchEditText,fName,confPass,pass,pinNumConf,pinNumber,userEmail,pNumber,lName;;
@@ -1168,7 +1168,11 @@ public class DashBoard extends AppCompatActivity {
         confirmbtn.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                startActivity(new Intent(DashBoard.this, MainActivity.class));
+                Intent intent=new Intent(DashBoard.this, MainActivity.class);
+                intent.putExtra("foodtype",foodSetGet.getFoodName());
+                foodtype=foodSetGet.getFoodName();
+                startActivity(intent);
+//                startActivity(new Intent(DashBoard.this, MainActivity.class));
 
 //                progressDialogNFC.show();
 //                foodSetGetMod=foodSetGet;
@@ -1216,7 +1220,7 @@ public class DashBoard extends AppCompatActivity {
         thread.interrupt();
     }
 
-    private void placeorder(FoodSetGet foodSetGet){
+    public void placeorder(FoodSetGet foodSetGet){
         progressDialog2.show();
         Calendar calendar = Calendar.getInstance();
         String currentdate = DateFormat.getInstance().format(calendar.getTime());

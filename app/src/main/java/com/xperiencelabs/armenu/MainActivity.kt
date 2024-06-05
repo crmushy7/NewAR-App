@@ -1,7 +1,10 @@
 package com.xperiencelabs.armenu
 
+import Dashboard.DashBoard
+import android.content.Intent
 import android.os.Bundle
 import android.util.Log
+import android.widget.ImageView
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.compose.foundation.Image
@@ -27,8 +30,10 @@ import io.github.sceneview.ar.node.ArNode
 import io.github.sceneview.ar.node.PlacementMode
 
 class MainActivity : ComponentActivity() {
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+
         setContent {
             ARMenuTheme {
                 // A surface container using the 'background' color from the theme
@@ -37,13 +42,42 @@ class MainActivity : ComponentActivity() {
                     color = MaterialTheme.colors.background
                 ) {
                   Box(modifier = Modifier.fillMaxSize()){
-                      val currentModel = remember {
-                          mutableStateOf("burger")
+                      if (DashBoard.foodtype == "Mandazi"){
+                          val currentModel = remember {
+                              mutableStateOf("donut")
+                          }
+                          ARScreen(currentModel.value)
+                          Menu(modifier = Modifier.align(Alignment.BottomCenter)){
+                              currentModel.value = it
+                          }
+                      }else if(DashBoard.foodtype == "Tambi Nyama"){
+                          val currentModel = remember {
+                              mutableStateOf("ramen")
+                          }
+                          ARScreen(currentModel.value)
+                          Menu(modifier = Modifier.align(Alignment.BottomCenter)){
+                              currentModel.value = it
+                          }
                       }
-                      ARScreen(currentModel.value)
-                      Menu(modifier = Modifier.align(Alignment.BottomCenter)){
-                          currentModel.value = it
+                      else if(DashBoard.foodtype == "wali maharage"){
+                          val currentModel = remember {
+                              mutableStateOf("rice")
+                          }
+                          ARScreen(currentModel.value)
+                          Menu(modifier = Modifier.align(Alignment.BottomCenter)){
+                              currentModel.value = it
+                          }
                       }
+                      else {
+                          val currentModel = remember {
+                              mutableStateOf("burger")
+                          }
+                          ARScreen(currentModel.value)
+                          Menu(modifier = Modifier.align(Alignment.BottomCenter)){
+                              currentModel.value = it
+                          }
+                      }
+
 
                   }
                 }
@@ -56,39 +90,31 @@ class MainActivity : ComponentActivity() {
 
 @Composable
 fun Menu(modifier: Modifier,onClick:(String)->Unit) {
+
     var currentIndex by remember {
         mutableStateOf(0)
     }
+    if (DashBoard.foodtype == "Mandazi"){
+        val itemsList = listOf(
+            Food("ramen",R.drawable.pizza),
+        )
 
-    val itemsList = listOf(
-        Food("burger",R.drawable.burger),
-        Food("instant",R.drawable.instant),
-        Food("momos",R.drawable.momos),
-        Food("pizza",R.drawable.pizza),
-        Food("ramen",R.drawable.ramen),
+    }else{
+        val itemsList = listOf(
+            Food("pizza",R.drawable.pizza),
 
-    )
+        )
+
+    }
+
     fun updateIndex(offset:Int){
-        currentIndex = (currentIndex+offset + itemsList.size) % itemsList.size
-        onClick(itemsList[currentIndex].name)
+//        currentIndex = (currentIndex+offset + itemsList.size) % itemsList.size
+//        onClick(itemsList[currentIndex].name)
     }
     Row(modifier = modifier.fillMaxWidth(),
         verticalAlignment = Alignment.CenterVertically,
         horizontalArrangement = Arrangement.SpaceAround
     ) {
-        IconButton(onClick = {
-            updateIndex(-1)
-        }) {
-            Icon(painter = painterResource(id = R.drawable.baseline_arrow_back_ios_24), contentDescription ="previous" )
-        }
-
-        CircularImage(imageId = itemsList[currentIndex].imageId )
-
-        IconButton(onClick = {
-            updateIndex(1)
-        }) {
-            Icon(painter = painterResource(id = R.drawable.baseline_arrow_forward_ios_24), contentDescription ="next")
-        }
     }
 
 }
@@ -119,6 +145,7 @@ fun ARScreen(model:String) {
         mutableStateOf(false)
     }
     Box(modifier = Modifier.fillMaxSize()){
+        val foodtype=DashBoard.foodtype;
         ARScene(
             modifier = Modifier.fillMaxSize(),
             nodes = nodes,
