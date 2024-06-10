@@ -128,8 +128,8 @@ public class DashBoard extends AppCompatActivity {
 //    PendingIntent pendingIntent;
     public static TextView user_Name,user_Pno,ppUsername,ppUsertopphone,ppUserFname,ppUsersmallphone,ppUserLname;
 
-    public static String scanstatus="null";
-    public static String userexist="null";
+    public static String menuname;
+    public static String menuprice;
     public static String fullName;
     public static String uploadedPicID;
     public static String user_email;
@@ -1168,25 +1168,12 @@ public class DashBoard extends AppCompatActivity {
         confirmbtn.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
+                menuname=foodSetGet.getFoodName();
+                menuprice=foodSetGet.getFoodPrice();
                 Intent intent=new Intent(DashBoard.this, MainActivity.class);
                 intent.putExtra("foodtype",foodSetGet.getFoodName());
                 foodtype=foodSetGet.getFoodName();
                 startActivity(intent);
-//                startActivity(new Intent(DashBoard.this, MainActivity.class));
-
-//                progressDialogNFC.show();
-//                foodSetGetMod=foodSetGet;
-//                scanstatus="scan";
-//                nfcReader.startListening();
-//                progressDialogNFC.setOnCancelListener(new DialogInterface.OnCancelListener() {
-//                    @Override
-//                    public void onCancel(DialogInterface dialog) {
-//                        scanstatus="null";
-//                    }
-//                });
-//
-//
-//
              }
         });
         viewCouponbtn.setOnClickListener(new View.OnClickListener() {
@@ -1199,11 +1186,7 @@ public class DashBoard extends AppCompatActivity {
         depositbtn.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-//                confirm.setVisibility(View.VISIBLE);
-//                success.setVisibility(View.GONE);
-//                error.setVisibility(View.GONE);
                 dialog.dismiss();
-//                viewHistoryAll();
 
             }
         });

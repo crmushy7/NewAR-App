@@ -1,6 +1,7 @@
 package com.xperiencelabs.armenu
 
 import Dashboard.DashBoard
+import android.content.Context
 import android.os.Bundle
 import android.util.Log
 import android.widget.Toast
@@ -33,6 +34,9 @@ import io.github.sceneview.ar.node.PlacementMode
 import io.github.sceneview.math.Position
 import io.github.sceneview.math.Rotation
 import io.github.sceneview.math.Scale
+import java.text.DateFormat
+import java.util.Calendar
+import kotlin.math.PI
 
 class MainActivity : ComponentActivity() {
 
@@ -53,7 +57,7 @@ class MainActivity : ComponentActivity() {
                             "Mandazi" -> currentModel.value = "donut"
                             "Tambi Nyama" -> currentModel.value = "ramen"
                             "wali maharage" -> currentModel.value = "rice"
-                            else -> currentModel.value = "burger"
+                            else -> currentModel.value = "pizza"
                         }
 
                         ARScreen(model = currentModel.value)
@@ -74,10 +78,7 @@ fun Menu(modifier: Modifier, onClick: (String) -> Unit) {
         Food("ramen", R.drawable.pizza),
     )
 
-    fun updateIndex(offset: Int) {
-        currentIndex = (currentIndex + offset + itemsList.size) % itemsList.size
-        onClick(itemsList[currentIndex].name)
-    }
+
 
     Row(
         modifier = modifier.fillMaxWidth(),
@@ -114,7 +115,9 @@ fun ARScreen(model: String) {
     val modelNode = remember { mutableStateOf<ArModelNode?>(null) }
     val placeModelButton = remember { mutableStateOf(false) }
     val scale = remember { mutableStateOf(1f) }
-    val rotation = remember { mutableStateOf(0f) }
+    val rotationX = remember { mutableStateOf(0f) }
+    val rotationY = remember { mutableStateOf(0f) }
+    val rotationZ = remember { mutableStateOf(0f) }
     val translationX = remember { mutableStateOf(0f) }
     val translationY = remember { mutableStateOf(0f) }
     val context = LocalContext.current
@@ -130,12 +133,20 @@ fun ARScreen(model: String) {
             modifier = Modifier
                 .fillMaxSize()
                 .pointerInput(Unit) {
-                    detectTransformGestures { _, pan, zoom, rotationChange ->
-                        scale.value *= zoom
-                        rotation.value += rotationChange
-                        translationX.value += pan.x
-                        translationY.value += pan.y
-                    }
+                    detectTransformGestures(
+                        onGesture = { centroid, pan, zoom, rotationChange ->
+                            scale.value *= zoom
+                            val degreesChange = rotationChange * (180 / PI.toFloat())
+
+                            // Apply rotation to Y axis by default
+                            rotationY.value += degreesChange
+                            translationX.value += pan.x
+                            translationY.value += pan.y
+
+                            // Log transformation values including intermediate rotation change
+                            Log.d("ARScreen", "Scale: ${scale.value}, RotationY (Degrees Change): $degreesChange, Total RotationY: ${rotationY.value}, TranslationX: ${translationX.value}, TranslationY: ${translationY.value}")
+                        }
+                    )
                 },
             nodes = nodes,
             planeRenderer = true,
@@ -146,7 +157,7 @@ fun ARScreen(model: String) {
                     isVisible = true
                 }
 
-                modelNode.value = ArModelNode(arSceneView.engine, PlacementMode.INSTANT).apply {
+                modelNode.value = ArModelNode(arSceneView.engine).apply {
                     loadModelGlbAsync(
                         glbFileLocation = "models/$model.glb",
                         scaleToUnits = 0.8f
@@ -167,9 +178,14 @@ fun ARScreen(model: String) {
 
         // Apply transformations to the model node
         modelNode.value?.let { node ->
+            // Additional debug logs before applying transformation
+            Log.d("ARScreen", "Before applying - Scale: ${scale.value}, RotationX: ${rotationX.value}, RotationY: ${rotationY.value}, RotationZ: ${rotationZ.value}, TranslationX: ${translationX.value}, TranslationY: ${translationY.value}")
             node.scale = Scale(scale.value, scale.value, scale.value)
-            node.rotation = Rotation(0f, rotation.value, 0f)
-            node.position = Position(translationX.value, translationY.value, 0f)
+            node.rotation = Rotation(rotationX.value, rotationY.value, rotationZ.value)
+            node.position = Position(translationX.value, translationY.value, node.position.z)
+
+            // Log applied transformations
+            Log.d("ARScreen", "Applied - Scale: ${node.scale}, Rotation: ${node.rotation}, Position: ${node.position}")
         }
 
         // Place model button
@@ -192,8 +208,7 @@ fun ARScreen(model: String) {
         ) {
             Button(
                 onClick = {
-                    saveOrderToFirebase(FirebaseDatabase.getInstance().reference, model)
-                    Toast.makeText(context, "Order Placed", Toast.LENGTH_SHORT).show()
+                    saveOrderToFirebase(FirebaseDatabase.getInstance().reference, model, context)
                 },
                 modifier = Modifier.align(Alignment.TopEnd)
             ) {
@@ -237,12 +252,52 @@ fun ARScreen(model: String) {
     }
 }
 
-fun saveOrderToFirebase(database: DatabaseReference, model: String) {
-    val order = mapOf(
-        "model" to model,
-        "timestamp" to System.currentTimeMillis()
-    )
-    database.child("Orders").push().setValue(order)
-}
+// Define Rotation class to handle rotation on all three axes
+data class Rotation(val x: Float, val y: Float, val z: Float)
 
-data class Food(var name: String, var imageId: Int)
+
+
+    fun saveOrderToFirebase(database: DatabaseReference, model: String, context: Context) {
+    if (DashBoard.tableStatus == null) {
+        Toast.makeText(context, "Table number unspecified", Toast.LENGTH_SHORT).show()
+        return
+    }
+
+    val calendar = Calendar.getInstance()
+    val currentdate = DateFormat.getInstance().format(calendar.time)
+    val day = calendar.get(Calendar.DAY_OF_MONTH)
+    val month = calendar.get(Calendar.MONTH) + 1 // Adding 1 because January is represented as 0
+    val year = calendar.get(Calendar.YEAR)
+    val dateOnly = "$day-$month-$year"
+
+    val placeOrderRef = database.child("Tables")
+        .child(dateOnly)
+        .child(DashBoard.tableStatus)
+        .push()
+
+    val orderID = placeOrderRef.key?.trim()
+    val orderDetails = mapOf(
+        "FoodName" to DashBoard.menuname,
+        "FoodPrice" to DashBoard.menuprice,
+        "Status" to "Not served",
+        "Date" to "$currentdate Hrs",
+        "orderID" to orderID,
+        "tableNumber" to DashBoard.tableStatus
+    )
+
+    placeOrderRef.setValue(orderDetails).addOnSuccessListener {
+        val historyRef = database.child("History").child(dateOnly).child(orderID ?: "")
+        historyRef.setValue(orderDetails).addOnSuccessListener {
+            Toast.makeText(context, "Order placed! Please wait a few minutes and it will be served to you!", Toast.LENGTH_LONG).show()
+        }
+    }
+        }
+
+
+
+
+
+
+
+
+    data class Food(var name: String, var imageId: Int)
