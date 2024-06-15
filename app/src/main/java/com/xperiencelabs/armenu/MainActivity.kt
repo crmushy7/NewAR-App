@@ -30,7 +30,6 @@ import com.xperiencelabs.armenu.ui.theme.Translucent
 import io.github.sceneview.ar.ARScene
 import io.github.sceneview.ar.node.ArModelNode
 import io.github.sceneview.ar.node.ArNode
-import io.github.sceneview.ar.node.PlacementMode
 import io.github.sceneview.math.Position
 import io.github.sceneview.math.Rotation
 import io.github.sceneview.math.Scale
@@ -77,8 +76,6 @@ fun Menu(modifier: Modifier, onClick: (String) -> Unit) {
     val itemsList = listOf(
         Food("ramen", R.drawable.pizza),
     )
-
-
 
     Row(
         modifier = modifier.fillMaxWidth(),
@@ -200,6 +197,68 @@ fun ARScreen(model: String) {
             }
         }
 
+        // Rotation and flipping buttons
+        Box(
+            modifier = Modifier
+                .fillMaxSize()
+                .padding(16.dp),
+            contentAlignment = Alignment.BottomEnd
+        ) {
+            Column(
+                horizontalAlignment = Alignment.CenterHorizontally,
+                verticalArrangement = Arrangement.spacedBy(8.dp)
+            ) {
+                Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+                    Button(onClick = { rotationX.value -= 10f }) {
+                        Text("Rotate X-")
+                    }
+                    Button(onClick = { rotationX.value += 10f }) {
+                        Text("Rotate X+")
+                    }
+                }
+                Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+                    Button(onClick = { rotationY.value -= 10f }) {
+                        Text("Rotate Y-")
+                    }
+                    Button(onClick = { rotationY.value += 10f }) {
+                        Text("Rotate Y+")
+                    }
+                }
+                Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+                    Button(onClick = { rotationZ.value -= 10f }) {
+                        Text("Rotate Z-")
+                    }
+                    Button(onClick = { rotationZ.value += 10f }) {
+                        Text("Rotate Z+")
+                    }
+                }
+//                Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+//                    Button(onClick = { translationX.value -= 0.1f }) {
+//                        Text("Move X-")
+//                    }
+//                    Button(onClick = { translationX.value += 0.1f }) {
+//                        Text("Move X+")
+//                    }
+//                }
+//                Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+//                    Button(onClick = { translationY.value -= 0.1f }) {
+//                        Text("Move Y-")
+//                    }
+//                    Button(onClick = { translationY.value += 0.1f }) {
+//                        Text("Move Y+")
+//                    }
+//                }
+                Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+                    Button(onClick = { scale.value -= 0.1f }) {
+                        Text("Scale -")
+                    }
+                    Button(onClick = { scale.value += 0.1f }) {
+                        Text("Scale +")
+                    }
+                }
+            }
+        }
+
         // Place order button
         Box(
             modifier = Modifier
@@ -255,9 +314,7 @@ fun ARScreen(model: String) {
 // Define Rotation class to handle rotation on all three axes
 data class Rotation(val x: Float, val y: Float, val z: Float)
 
-
-
-    fun saveOrderToFirebase(database: DatabaseReference, model: String, context: Context) {
+fun saveOrderToFirebase(database: DatabaseReference, model: String, context: Context) {
     if (DashBoard.tableStatus == null) {
         Toast.makeText(context, "Table number unspecified", Toast.LENGTH_SHORT).show()
         return
@@ -291,13 +348,6 @@ data class Rotation(val x: Float, val y: Float, val z: Float)
             Toast.makeText(context, "Order placed! Please wait a few minutes and it will be served to you!", Toast.LENGTH_LONG).show()
         }
     }
-        }
+}
 
-
-
-
-
-
-
-
-    data class Food(var name: String, var imageId: Int)
+data class Food(var name: String, var imageId: Int)
