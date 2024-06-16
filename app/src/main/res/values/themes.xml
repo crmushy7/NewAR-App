@@ -2,7 +2,7 @@
     <!-- Base application theme. -->
     <style name="Theme.ARMenu" parent="Theme.Material3.DayNight.NoActionBar">
         <!-- Customize your light theme here. -->
-         <item name="colorPrimary">@color/orange</item>
+         <item name="colorPrimary">@color/green</item>
     </style>
 
 <!--    <style name="Base.Theme.armenu" parent="Base.Theme.ARMenu" />-->

@@ -232,22 +232,7 @@ fun ARScreen(model: String) {
                         Text("Rotate Z+")
                     }
                 }
-//                Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
-//                    Button(onClick = { translationX.value -= 0.1f }) {
-//                        Text("Move X-")
-//                    }
-//                    Button(onClick = { translationX.value += 0.1f }) {
-//                        Text("Move X+")
-//                    }
-//                }
-//                Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
-//                    Button(onClick = { translationY.value -= 0.1f }) {
-//                        Text("Move Y-")
-//                    }
-//                    Button(onClick = { translationY.value += 0.1f }) {
-//                        Text("Move Y+")
-//                    }
-//                }
+
                 Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
                     Button(onClick = { scale.value -= 0.1f }) {
                         Text("Scale -")

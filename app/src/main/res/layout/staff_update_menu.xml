@@ -87,12 +87,14 @@
                     android:layout_height="wrap_content"
                     android:orientation="horizontal">
                     <TextView
+                        android:visibility="gone"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:text="Sold plates:    "
                         android:textColor="@color/black"/>
 
                     <TextView
+                        android:visibility="gone"
                         android:id="@+id/fc_soldAmount"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"

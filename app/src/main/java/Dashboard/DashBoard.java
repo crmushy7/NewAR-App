@@ -410,6 +410,7 @@ public class DashBoard extends AppCompatActivity {
 //                    Collections.reverse(unfilterdlist);
                     progressBar.setVisibility(View.GONE);
                 }else{
+                    progressBar.setVisibility(View.GONE);
                     Toast.makeText(DashBoard.this, "no sold menus for today", Toast.LENGTH_SHORT).show();
                 }
             }
