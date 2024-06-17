@@ -17,6 +17,7 @@ import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
@@ -54,8 +55,9 @@ class MainActivity : ComponentActivity() {
 
                         when (foodType) {
                             "Mandazi" -> currentModel.value = "donut"
-                            "Tambi Nyama" -> currentModel.value = "ramen"
+                            "Tambi Nyama" -> currentModel.value = "tambi"
                             "wali maharage" -> currentModel.value = "rice"
+                            "Wali nyama" -> currentModel.value = "walikuku"
                             else -> currentModel.value = "pizza"
                         }
 
@@ -123,7 +125,13 @@ fun ARScreen(model: String) {
     var isTextVisible by remember { mutableStateOf(false) }
 
     // Sample food ingredients text
-    val foodIngredients = "Ingredient 1, Ingredient 2, Ingredient 3"
+    val foodIngredients = when (DashBoard.foodtype) {
+        "Mandazi" -> "Flour, Sugar, Coconut Milk, Cardamom"
+        "Tambi Nyama" -> "Beef, Spaghetti, Tomatoes, Onions, Spices"
+        "wali maharage" -> "Rice, Beans, Onions, Coconut Milk"
+        "Wali nyama" -> "Rice, Chicken, Tomatoes, Spices"
+        else -> "Ingredient 1, Ingredient 2, Ingredient 3"
+    }
 
     Box(modifier = Modifier.fillMaxSize()) {
         ARScene(
@@ -191,7 +199,8 @@ fun ARScreen(model: String) {
                 onClick = {
                     modelNode.value?.anchor()
                 },
-                modifier = Modifier.align(Alignment.Center)
+                modifier = Modifier.align(Alignment.Center),
+                colors = ButtonDefaults.buttonColors(backgroundColor = Color(0xFFFF6106)) // Custom color
             ) {
                 Text(text = "Place It")
             }
@@ -209,37 +218,20 @@ fun ARScreen(model: String) {
                 verticalArrangement = Arrangement.spacedBy(8.dp)
             ) {
                 Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
-                    Button(onClick = { rotationX.value -= 10f }) {
-                        Text("Rotate X-")
-                    }
-                    Button(onClick = { rotationX.value += 10f }) {
-                        Text("Rotate X+")
-                    }
+                    CustomButton(onClick = { rotationX.value -= 10f }, text = "Rotate X-", iconId = R.drawable.ic_rotate_left)
+                    CustomButton(onClick = { rotationX.value += 10f }, text = "Rotate X+", iconId = R.drawable.ic_rotate_right)
                 }
                 Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
-                    Button(onClick = { rotationY.value -= 10f }) {
-                        Text("Rotate Y-")
-                    }
-                    Button(onClick = { rotationY.value += 10f }) {
-                        Text("Rotate Y+")
-                    }
+                    CustomButton(onClick = { rotationY.value -= 10f }, text = "Rotate Y-", iconId = R.drawable.ic_rotate_down)
+                    CustomButton(onClick = { rotationY.value += 10f }, text = "Rotate Y+", iconId = R.drawable.ic_rotate_up)
                 }
                 Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
-                    Button(onClick = { rotationZ.value -= 10f }) {
-                        Text("Rotate Z-")
-                    }
-                    Button(onClick = { rotationZ.value += 10f }) {
-                        Text("Rotate Z+")
-                    }
+                    CustomButton(onClick = { rotationZ.value -= 10f }, text = "Rotate Z-", iconId = R.drawable.ic_rotate_left_bottom)
+                    CustomButton(onClick = { rotationZ.value += 10f }, text = "Rotate Z+", iconId = R.drawable.ic_rotate_right_top)
                 }
-
                 Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
-                    Button(onClick = { scale.value -= 0.1f }) {
-                        Text("Scale -")
-                    }
-                    Button(onClick = { scale.value += 0.1f }) {
-                        Text("Scale +")
-                    }
+                    CustomButton(onClick = { scale.value -= 0.1f }, text = "Scale -", iconId = R.drawable.ic_zoom_out)
+                    CustomButton(onClick = { scale.value += 0.1f }, text = "Scale +", iconId = R.drawable.ic_zoom_in)
                 }
             }
         }
@@ -254,7 +246,8 @@ fun ARScreen(model: String) {
                 onClick = {
                     saveOrderToFirebase(FirebaseDatabase.getInstance().reference, model, context)
                 },
-                modifier = Modifier.align(Alignment.TopEnd)
+                modifier = Modifier.align(Alignment.TopEnd),
+                colors = ButtonDefaults.buttonColors(backgroundColor = Color(0xFFFF6106)) // Custom color
             ) {
                 Text(text = "Place Order")
             }
@@ -269,7 +262,8 @@ fun ARScreen(model: String) {
             // Toggle text visibility on button click
             Button(
                 onClick = { isTextVisible = !isTextVisible },
-                modifier = Modifier.align(Alignment.TopStart)
+                modifier = Modifier.align(Alignment.TopStart),
+                colors = ButtonDefaults.buttonColors(backgroundColor = Color(0xFFFF6106)) // Custom color
             ) {
                 Text(text = if (isTextVisible) "Hide Ingredients" else "Show Ingredients")
             }
@@ -296,7 +290,22 @@ fun ARScreen(model: String) {
     }
 }
 
-// Define Rotation class to handle rotation on all three axes
+@Composable
+fun CustomButton(onClick: () -> Unit, text: String, iconId: Int) {
+    Button(
+        onClick = onClick,
+        colors = ButtonDefaults.buttonColors(backgroundColor = Color(0xFFFF6106)) // Custom color
+    ) {
+        Icon(
+            painter = painterResource(id = iconId),
+            contentDescription = null,
+            modifier = Modifier.size(20.dp)
+        )
+        Spacer(modifier = Modifier.width(8.dp))
+        Text(text = text)
+    }
+}
+
 data class Rotation(val x: Float, val y: Float, val z: Float)
 
 fun saveOrderToFirebase(database: DatabaseReference, model: String, context: Context) {
