@@ -53,12 +53,18 @@ class MainActivity : ComponentActivity() {
                         val foodType = DashBoard.foodtype
                         val currentModel = remember { mutableStateOf("") }
 
-                        when (foodType) {
-                            "Mandazi" -> currentModel.value = "donut"
-                            "Tambi Nyama" -> currentModel.value = "tambi"
-                            "wali maharage" -> currentModel.value = "rice"
-                            "Wali nyama" -> currentModel.value = "walikuku"
-                            else -> currentModel.value = "pizza"
+                        currentModel.value = when (foodType) {
+                            "Tambi Nyama" -> "pasta_with_meatballs_and_sausage"
+                            "Pastry" -> "pastry"
+                            "Burrito" -> "burrito"
+                            "Chapati" -> "roti_canai"
+                            "Sandwich" -> "sandwich"
+                            "Samaki" -> "vegetable_tray"
+                            "Pizza" -> "pizza"
+                            "Mishkaki" -> "cookies_set"
+                            "Nyama Choma" -> "nyamachoma"
+                            "Tambi Supu" -> "soup"
+                            else -> "pizza"
                         }
 
                         ARScreen(model = currentModel.value)
@@ -130,8 +136,18 @@ fun ARScreen(model: String) {
         "Tambi Nyama" -> "Beef, Spaghetti, Tomatoes, Onions, Spices"
         "wali maharage" -> "Rice, Beans, Onions, Coconut Milk"
         "Wali nyama" -> "Rice, Chicken, Tomatoes, Spices"
+        "Pastry" -> "Flour, Butter, Sugar, Eggs"
+        "Burrito" -> "Tortilla, Beans, Rice, Meat, Cheese, Salsa"
+        "Chapati" -> "Flour, Water, Oil, Salt"
+        "Sandwich" -> "Bread, Lettuce, Tomato, Cheese, Ham"
+        "Samaki" -> "Fish, Lemon, Garlic, Spices"
+        "Pizza" -> "Dough, Tomato Sauce, Cheese, Pepperoni"
+        "Mishkaki" -> "Beef, Skewers, Spices"
+        "Nyama Choma" -> "Grilled Meat, Spices"
+        "Tambi Supu" -> "Noodles, Chicken Broth, Vegetables"
         else -> "Ingredient 1, Ingredient 2, Ingredient 3"
     }
+
 
     Box(modifier = Modifier.fillMaxSize()) {
         ARScene(
