@@ -1,52 +1,13 @@
 {
   "project_info": {
-    "project_number": "638755640647",
-    "firebase_url": "https://dtcs-app-default-rtdb.firebaseio.com",
-    "project_id": "dtcs-app",
-    "storage_bucket": "dtcs-app.appspot.com"
+    "project_number": "93842579323",
+    "project_id": "armenu-73998",
+    "storage_bucket": "armenu-73998.appspot.com"
   },
   "client": [
     {
       "client_info": {
-        "mobilesdk_app_id": "1:638755640647:android:4a6488ea846f252eb76862",
-        "android_client_info": {
-          "package_name": "com.example.dtcsapp"
-        }
-      },
-      "oauth_client": [],
-      "api_key": [
-        {
-          "current_key": "AIzaSyBJ-6n5etVYcJKgspQcRpENLbCcmdlAbDk"
-        }
-      ],
-      "services": {
-        "appinvite_service": {
-          "other_platform_oauth_client": []
-        }
-      }
-    },
-    {
-      "client_info": {
-        "mobilesdk_app_id": "1:638755640647:android:4ad5074b679e8a58b76862",
-        "android_client_info": {
-          "package_name": "com.example.dtcsstaff"
-        }
-      },
-      "oauth_client": [],
-      "api_key": [
-        {
-          "current_key": "AIzaSyBJ-6n5etVYcJKgspQcRpENLbCcmdlAbDk"
-        }
-      ],
-      "services": {
-        "appinvite_service": {
-          "other_platform_oauth_client": []
-        }
-      }
-    },
-    {
-      "client_info": {
-        "mobilesdk_app_id": "1:638755640647:android:f89b2cd1b0794becb76862",
+        "mobilesdk_app_id": "1:93842579323:android:f961aeec6c5879c49fe7de",
         "android_client_info": {
           "package_name": "com.xperiencelabs.armenu"
         }
@@ -54,7 +15,7 @@
       "oauth_client": [],
       "api_key": [
         {
-          "current_key": "AIzaSyBJ-6n5etVYcJKgspQcRpENLbCcmdlAbDk"
+          "current_key": "AIzaSyCyuihe-a89zrnu4rH8Celj9HRao1ZDy28"
         }
       ],
       "services": {
